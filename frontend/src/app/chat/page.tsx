@@ -1,3 +1,4 @@
+// src/app/chat/page.tsx
 'use client';
 
 import { useEffect } from 'react';

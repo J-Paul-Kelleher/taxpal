@@ -6,33 +6,44 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1
 
 // Helper function to get auth token
 const getToken = async () => {
-  const { data } = await supabase.auth.getSession();
+  const { data, error } = await supabase.auth.getSession();
+  
+  if (error) {
+    console.error('Error getting auth session:', error);
+    throw new Error('Authentication error: ' + error.message);
+  }
+  
   return data.session?.access_token || '';
 };
 
 // Helper function for API requests
 const apiRequest = async (endpoint: string, method: string, data?: any) => {
-  const token = await getToken();
-  
-  const headers = {
-    'Content-Type': 'application/json',
-    'Authorization': `Bearer ${token}`,
-  };
-  
-  const config: RequestInit = {
-    method,
-    headers,
-    body: data ? JSON.stringify(data) : undefined,
-  };
-  
-  const response = await fetch(`${API_URL}${endpoint}`, config);
-  
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => null);
-    throw new Error(errorData?.detail || `API request failed with status ${response.status}`);
+  try {
+    const token = await getToken();
+    
+    const headers = {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    };
+    
+    const config: RequestInit = {
+      method,
+      headers,
+      body: data ? JSON.stringify(data) : undefined,
+    };
+    
+    const response = await fetch(`${API_URL}${endpoint}`, config);
+    
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ detail: 'Unknown error' }));
+      throw new Error(errorData?.detail || `API request failed with status ${response.status}`);
+    }
+    
+    return response.json();
+  } catch (error) {
+    console.error(`API request to ${endpoint} failed:`, error);
+    throw error;
   }
-  
-  return response.json();
 };
 
 // Chat API functions
