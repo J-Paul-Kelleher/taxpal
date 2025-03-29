@@ -20,7 +20,7 @@ async def get_embeddings(texts: List[str]) -> List[List[float]]:
     embeddings = []
     
     for text in texts:
-        # Call the Gemini embedding API
+        # Call the Gemini embedding API with the correct model name
         embedding = genai.embed_content(
             model="models/embedding-001",
             content=text,
