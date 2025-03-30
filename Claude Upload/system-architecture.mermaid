@@ -1,0 +1,129 @@
+flowchart TB
+    subgraph "Client"
+        UI[Next.js Frontend]
+        UI --> AuthUI[Authentication UI]
+        UI --> ChatUI[Chat Interface]
+        UI --> SubUI[Subscription UI]
+        UI --> AdminUI[Admin Dashboard]
+        UI --> LandingUI[Landing Page]
+        
+        AuthUI --> SupabaseClient[Supabase Auth Client]
+        SupabaseClient --> SessionTokenStore[Secure JWT Storage]
+        SessionTokenStore --> UI
+    end
+
+    subgraph "Backend Services"
+        API[FastAPI Backend]
+        API --> JWTMiddleware[JWT Validation Middleware\nValidates Supabase-issued tokens]
+        JWTMiddleware --> AuthService[Authentication Service]
+        JWTMiddleware --> ChatService[Chat Service]
+        JWTMiddleware --> SubService[Subscription Service]
+        JWTMiddleware --> AdminService[Admin Service]
+        JWTMiddleware --> UsageService[Usage Tracking]
+        
+        ChatService --> RAGPipeline[RAG Pipeline]
+        RAGPipeline --> Chunking[Document Chunking]
+        Chunking --> SemanticChunking[Section-based Semantic Chunking]
+        RAGPipeline --> Embedding[Text Embedding]
+        RAGPipeline --> Retrieval[Hybrid Retrieval - Vector + BM25]
+        RAGPipeline --> Generation[Response Generation]
+        RAGPipeline --> Citation[Citation Extraction]
+        
+        %% Token Usage Tracking Components
+        UsageService --> TokenCounter[Token Usage Counter]
+        TokenCounter --> UsageDB[Usage Database Records]
+        UsageService --> QuotaEnforcer[Quota Enforcement]
+    end
+    
+    subgraph "Data Storage"
+        DB[(Supabase PostgreSQL)]
+        VectorDB[(Pinecone Vector DB)]
+        DocStore[Document Storage]
+    end
+    
+    subgraph "External Services"
+        StripeAPI[Stripe API]
+        GeminiAPI[Gemini Flash 2.0 API]
+        GeminiEmbedding[Gemini Embedding API\ngemini-embedding-exp-03-07]
+        SupabaseAuth[Supabase Auth\nGoogle OAuth]
+    end
+    
+    subgraph "DevOps Infrastructure"
+        Vercel[Vercel Hosting\nEU Region]
+        FlyIO[Fly.io Hosting\nEU Region]
+        GithubActions[CI/CD Pipeline]
+        Monitoring[Datadog/Sentry]
+    end
+    
+    %% Authentication Flow (Updated)
+    AuthUI -- "1. Sign Up/Login Request" --> SupabaseAuth
+    SupabaseAuth -- "2. Issue JWT" --> SupabaseClient
+    SupabaseClient -- "3. Store JWT" --> SessionTokenStore
+    UI -- "4. API Request with JWT" --> API
+    API -- "5. Validate JWT" --> JWTMiddleware
+    JWTMiddleware -- "6. Extract User Context" --> AuthService
+    
+    %% No direct validation call to Supabase Auth (removed)
+    %% JWTMiddleware does NOT connect to SupabaseAuth for validation
+    
+    %% Regular API flows
+    ChatUI <--> ChatService
+    SubUI <--> SubService
+    AdminUI <--> AdminService
+    
+    AuthService <--> DB
+    ChatService <--> DB
+    SubService <--> DB
+    AdminService <--> DB
+    UsageService <--> DB
+    
+    RAGPipeline <--> VectorDB
+    Chunking <--> DocStore
+    
+    SubService <--> StripeAPI
+    Embedding <--> GeminiEmbedding
+    Generation <--> GeminiAPI
+    
+    %% Token Usage Tracking Flow
+    Generation -- "Track tokens used" --> TokenCounter
+    TokenCounter -- "Update user usage" --> UsageDB
+    QuotaEnforcer -- "Check limits before generation" --> Generation
+    QuotaEnforcer <-- "Get user quota" --> DB
+    
+    UI <--> Vercel
+    API <--> FlyIO
+    Vercel <--> GithubActions
+    FlyIO <--> GithubActions
+    API <--> Monitoring
+    UI <--> Monitoring
+    
+    %% RLS Protection
+    DB --> RLS[Row Level Security Policies]
+    RLS --> UserRLS[User Access Control]
+    RLS --> UsageRLS[Usage Quota Enforcement]
+    RLS --> AdminRLS[Admin-only Access]
+    
+    %% Subscription Tiers
+    SubService --> FreeTier[Free Tier: 10 msgs/week]
+    SubService --> PaidTier[Paid Tier: 1000 msgs/month]
+    
+    %% Data Flow Paths
+    classDef primary fill:#3498db,stroke:#2980b9,color:white
+    classDef secondary fill:#2ecc71,stroke:#27ae60,color:white
+    classDef auth fill:#e74c3c,stroke:#c0392b,color:white
+    classDef storage fill:#f39c12,stroke:#e67e22,color:white
+    classDef external fill:#9b59b6,stroke:#8e44ad,color:white
+    classDef devops fill:#34495e,stroke:#2c3e50,color:white
+    classDef rls fill:#e74c3c,stroke:#c0392b,color:white
+    classDef sub fill:#1abc9c,stroke:#16a085,color:white
+    classDef usage fill:#16a085,stroke:#1abc9c,color:white
+    
+    class UI,ChatUI,SubUI,AdminUI,LandingUI primary
+    class AuthUI,SupabaseClient,SessionTokenStore,JWTMiddleware auth
+    class API,AuthService,ChatService,SubService,AdminService,UsageService,RAGPipeline,Chunking,SemanticChunking,Embedding,Retrieval,Generation,Citation secondary
+    class DB,VectorDB,DocStore storage
+    class StripeAPI,GeminiAPI,GeminiEmbedding,SupabaseAuth external
+    class Vercel,FlyIO,GithubActions,Monitoring devops
+    class RLS,UserRLS,UsageRLS,AdminRLS rls
+    class FreeTier,PaidTier sub
+    class TokenCounter,UsageDB,QuotaEnforcer usage

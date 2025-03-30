@@ -1,0 +1,162 @@
+erDiagram
+    %% Core User and Chat Management
+    Users {
+        uuid id PK "auth.uid() default"
+        string email UK
+        timestamp created_at "default now()"
+        timestamp last_login
+        string subscription_plan_id FK "References SubscriptionPlans.id"
+        string subscription_status "active, expired, etc."
+        string stripe_subscription_id "External Stripe reference"
+        int current_period_usage "RLS policy"
+        int usage_limit "RLS policy"
+        timestamp last_reset_date
+        bool is_admin "RLS policy"
+    }
+    
+    SubscriptionPlans {
+        string id PK "e.g., 'free', 'pro', 'enterprise'"
+        string name
+        int monthly_price
+        int yearly_price
+        int token_limit
+        jsonb features
+        bool is_active
+    }
+    
+    ChatHistory {
+        uuid id PK
+        uuid user_id FK "auth.uid() default"
+        string session_id
+        timestamp created_at "default now()"
+        text query
+        text response
+        int tokens_used
+        jsonb citations
+        %% Removed feedback_id as per recommendation
+    }
+    
+    Feedback {
+        uuid id PK
+        uuid chat_id FK "References ChatHistory.id"
+        uuid user_id FK "auth.uid() default"
+        timestamp created_at "default now()"
+        string feedback_type
+        text comment
+    }
+    
+    %% Simplified Legislation Structure
+    LegislationStructure {
+        uuid id PK
+        uuid parent_id FK "Self-referencing for hierarchy"
+        string type "act, part, section, subsection"
+        string reference_number "e.g., '12A', 'Part IV'"
+        string title
+        text description
+        int year_of_act "For acts only"
+        string short_title "For acts only"
+        date date_enacted "For acts only"
+        date date_effective
+        bool is_active
+        int sort_order "For ordering siblings"
+        timestamp last_updated
+    }
+    
+    LegislationContent {
+        uuid id PK
+        uuid structure_id FK "References LegislationStructure"
+        int version_number
+        text full_text
+        text amendment_notes
+        uuid amending_structure_id FK "References amending act"
+        date effective_from
+        date effective_to
+        vector embedding
+    }
+    
+    %% Guidance Documents
+    GuidanceDocuments {
+        uuid id PK
+        string title
+        string document_type
+        string source
+        text description
+        date publication_date
+        date last_updated
+        string file_path
+        bool is_active
+    }
+    
+    GuidanceChunks {
+        uuid id PK
+        uuid guidance_document_id FK
+        string chunk_identifier
+        text content
+        jsonb metadata
+        vector embedding
+    }
+    
+    %% Definitions
+    Definitions {
+        uuid id PK
+        string term
+        text definition_text
+        date date_effective
+        vector embedding
+    }
+    
+    %% Separate references tables for each source type to avoid polymorphic references
+    GuidanceReferences {
+        uuid id PK
+        uuid guidance_chunk_id FK "References GuidanceChunks"
+        uuid target_structure_id FK "References LegislationStructure"
+        string reference_type "cites, explains, etc."
+        text notes
+    }
+    
+    DefinitionReferences {
+        uuid id PK
+        uuid definition_id FK "References Definitions"
+        uuid source_structure_id FK "References LegislationStructure"
+        text notes
+    }
+    
+    %% Auth Configuration Log (for Supabase RLS)
+    RLSConfigurations {
+        uuid id PK
+        string table_name
+        jsonb policy_definitions
+        string description
+        timestamp created_at "default now()"
+        timestamp updated_at
+        string updated_by
+    }
+    
+    %% Edge Functions Log (for tracking scheduled jobs)
+    EdgeFunctions {
+        uuid id PK
+        string function_name
+        string schedule
+        text description
+        timestamp last_run
+        timestamp next_run
+        string status
+        text log
+    }
+    
+    %% Relationships
+    Users }o--|| SubscriptionPlans : "subscribes to"
+    Users ||--o{ ChatHistory : "has"
+    Users ||--o{ Feedback : "provides"
+    ChatHistory ||--o{ Feedback : "receives"
+    
+    LegislationStructure ||--o{ LegislationStructure : "contains"
+    LegislationStructure ||--o{ LegislationContent : "has versions"
+    
+    GuidanceDocuments ||--o{ GuidanceChunks : "divided into"
+    GuidanceChunks ||--o{ GuidanceReferences : "references"
+    
+    Definitions ||--o{ DefinitionReferences : "sourced from"
+    
+    LegislationStructure ||--o{ GuidanceReferences : "is referenced by"
+    LegislationStructure ||--o{ DefinitionReferences : "defines terms in"

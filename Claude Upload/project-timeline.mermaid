@@ -1,0 +1,60 @@
+gantt
+    title Revised TaxPal Project Timeline (Junior Solo Developer)
+    dateFormat  YYYY-MM-DD
+    
+    section Project Setup
+    Project kickoff                  :milestone, 2025-04-01, 0d
+    Development environment setup    :setup, 2025-04-01, 10d
+    Initial learning & research      :learning, 2025-04-01, 14d
+    CI/CD pipeline basic config      :after setup, 14d
+    
+    section Backend Foundations
+    Database schema design           :be1, after learning, 7d
+    FastAPI project scaffold         :be2, after be1, 7d
+    Basic auth integration           :be3, after be2, 10d
+    Initial database models          :be4, after be3, 7d
+    
+    section Frontend Foundations
+    Next.js project setup            :fe1, after be4, 5d
+    Basic auth UI                    :fe2, after fe1, 10d
+    Simple landing page              :fe3, 2025-05-15, 7d
+    Basic chat interface             :fe4, after fe2, 14d
+    
+    section RAG Implementation
+    Research & learning RAG          :rag1, after be4, 14d
+    Document schema design           :rag2, after rag1, 7d
+    Basic document parser            :rag3, after rag2, 14d
+    Initial embedding pipeline       :rag4, after rag3, 10d
+    Basic retrieval implementation   :rag5, after rag4, 14d
+    End-to-end RAG testing           :rag6, after rag5, 10d
+    
+    section Core Functionality
+    Chat endpoint implementation     :core1, after rag6, 10d
+    Basic usage tracking             :core2, after core1, 7d
+    Frontend-backend integration     :core3, after core1 fe4, 14d
+    Basic error handling             :core4, after core3, 7d
+    MVP functionality complete       :milestone, after core4, 0d
+    
+    section Subscription & Admin Features
+    Simple subscription model        :sub1, after core4, 10d
+    Stripe integration               :sub2, after sub1, 14d
+    Usage limits implementation      :sub3, after sub2, 10d
+    Basic admin endpoints            :sub4, after sub3, 14d
+    
+    section Testing & Refinement
+    Basic unit tests                 :test1, after sub4, 14d
+    Bug fixes & UI improvements      :test2, after test1, 21d
+    User testing & feedback          :test3, after test2, 14d
+    Final pre-launch fixes           :test4, after test3, 14d
+    
+    section Deployment
+    Initial staging deployment       :deploy1, after test2, 7d
+    Security review                  :deploy2, after deploy1, 10d
+    Production environment setup     :deploy3, after deploy2, 10d
+    MVP Launch                       :milestone, 2025-10-15, 0d
+    
+    section Post-MVP
+    Gather user feedback             :post1, after deploy3, 14d
+    Critical bug fixes               :post2, after post1, 21d
+    Performance improvements         :post3, after post2, 21d
+    Feature enhancements planning    :post4, after post3, 14d
