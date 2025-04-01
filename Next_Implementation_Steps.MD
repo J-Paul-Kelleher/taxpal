@@ -1,72 +1,125 @@
-Next Implementation Steps
-1. Authentication System Implementation
+# Next Implementation Steps for TaxPal
 
-Finalize the JWT validation middleware in the backend
-Set up user registration and login endpoints
-Create protected routes
-Implement role-based authorization (admin vs regular users)
+## Current Progress
+- ✅ Environment setup completed
+- ✅ Authentication system implemented (backend + frontend)
+- ✅ Database schema created
+- ✅ Basic project structure established
 
-2. Basic RAG Pipeline Implementation
+## Next Steps (In Priority Order)
 
-Complete the document chunking service
-Implement embedding generation and storage
-Create the retrieval mechanism (vector search + BM25)
-Set up response generation with citation extraction
-Test the end-to-end RAG pipeline
+### 1. RAG Pipeline Implementation
+- [✅] Complete document chunking service
+  - Enhance existing code in `app/services/document_processor.py`
+  - Add support for semantic chunking by legislative section
+- [✅] Implement embedding generation and storage
+  - Finalize `app/services/embedding_service.py`
+  - Add batch processing for efficient embedding generation
+- [✅] Create the retrieval mechanism
+  - Implement hybrid search (vector + BM25)
+  - Add filtering by document metadata
+  - Optimize for accuracy with Irish tax legislation
+- [✅] Set up response generation with citation extraction
+  - Complete `app/services/generator_service.py`
+  - Implement prompt templates from `rag-prompt-templates.md`
+  - Add citation extraction and formatting
+- [ ] Test end-to-end RAG pipeline
+  - Create test cases with sample tax queries
+  - Evaluate accuracy and relevance of responses
 
-3. Chat Interface Development
+### 2. Chat Interface Development
+- [ ] Create React components for the chat interface
+  - Message list component
+  - Message input component
+  - Citation display component
+- [ ] Implement message handling
+  - Send queries to backend
+  - Display streamed responses if supported
+  - Handle loading states and errors
+- [ ] Add citation rendering
+  - Format citations according to specification
+  - Make citations clickable to view source
+- [ ] Create chat history display
+  - Store and retrieve chat history
+  - Allow navigation between past conversations
 
-Create React components for the chat interface
-Implement message sending and display
-Add citation rendering capabilities
-Set up user session management
-Create a simple chat history display
+### 3. Document Ingestion Implementation
+- [ ] Create document processing scripts
+  - Support PDF and text document processing
+  - Extract metadata from documents
+- [ ] Implement the document ingestion pipeline
+  - Process Irish tax legislation
+  - Store in vector database with metadata
+- [ ] Add admin controls for document management
+  - Upload new documents
+  - Update existing documents
+  - Remove documents from index
 
-4. User Management
+### 4. Subscription Management
+- [ ] Implement subscription plan display
+  - Show available plans
+  - Highlight features of each plan
+- [ ] Create Stripe checkout integration
+  - Set up Stripe Checkout
+  - Handle successful payments
+- [ ] Implement usage tracking
+  - Count tokens used per user
+  - Display usage in user profile
+- [ ] Set up quota enforcement
+  - Block usage when quota is exceeded
+  - Show upgrade prompts
 
-Complete user profile management
-Implement usage tracking
-Create basic admin views
-Set up user quota enforcement
+### 5. Performance Optimization and Testing
+- [ ] Optimize RAG pipeline performance
+  - Improve retrieval speed
+  - Optimize embedding generation
+- [ ] Implement caching where appropriate
+  - Cache frequent queries
+  - Cache embeddings for common text
+- [ ] Add comprehensive error handling
+  - Graceful degradation
+  - User-friendly error messages
+- [ ] Implement thorough testing
+  - Unit tests for critical components
+  - Integration tests for the RAG pipeline
+  - End-to-end tests for user flows
 
-5. Subscription Management (Initial Setup Without Webhooks)
+## Implementation Timeline
 
-Implement subscription plan display
-Create Stripe checkout integration
-Set up subscription status checking
-Implement basic quota management
+| Phase | Component | Estimated Time |
+|-------|-----------|----------------|
+| 1 | RAG Pipeline | 3-4 weeks |
+| 2 | Chat Interface | 2-3 weeks |
+| 3 | Document Ingestion | 2 weeks |
+| 4 | Subscription Management | 2-3 weeks |
+| 5 | Optimization & Testing | 2-3 weeks |
 
-6. Document Ingestion
+## Technical Considerations
 
-Create document processing scripts
-Implement the document ingestion pipeline
-Add admin controls for document management
-Set up document metadata handling
+### RAG Pipeline
+- Ensure the hybrid retrieval approach provides accurate results for tax queries
+- Implement proper prompt engineering for the LLM to generate helpful responses
+- Add guardrails to prevent hallucinations on tax-related information
 
-7. Frontend UI Improvements
+### User Experience
+- Focus on simplicity and clarity in the chat interface
+- Ensure citations are presented in a helpful, non-intrusive way
+- Make the user aware of their token usage and limits
 
-Implement responsive design
-Add loading states and error handling
-Create a professional landing page
-Set up user onboarding flow
+### Performance
+- Monitor response times - aim for < 3 seconds for typical queries
+- Implement proper error handling and retries for LLM API calls
+- Consider adding client-side caching for frequent queries
 
-8. Testing and Optimization
+### Security
+- Ensure all API endpoints are properly protected
+- Implement rate limiting to prevent abuse
+- Maintain strict separation between user data
 
-Write unit tests for critical components
-Implement integration tests
-Optimize RAG pipeline performance
-Improve retrieval accuracy
+## Next Immediate Tasks
 
-9. Deployment Preparation
-
-Set up CI/CD pipelines
-Configure staging environment
-Prepare production deployment scripts
-Implement logging and monitoring
-
-10. Stripe Webhook Integration (When Ready)
-
-Set up secure webhook handling
-Implement subscription event processing
-Create test scenarios for subscription events
-Add robust error handling
+1. Complete the document chunking service
+2. Implement embedding generation with Gemini API
+3. Set up vector search with Pinecone
+4. Create basic prompt templates for response generation
+5. Test the RAG pipeline with sample queries

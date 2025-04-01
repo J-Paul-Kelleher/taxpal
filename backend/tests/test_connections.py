@@ -12,7 +12,7 @@ load_dotenv()
 def test_pinecone():
     print("Testing Pinecone connection...")
     try:
-        from pinecone import Pinecone
+        from pinecone import Pinecone # Remove the .grpc part
         
         pc = Pinecone(api_key=os.getenv("PINECONE_API_KEY"))
         index_name = os.getenv("PINECONE_INDEX")
